@@ -61,14 +61,16 @@ const GeminiAPI = (() => {
       transcripts: 'Academic Transcripts/Grades Summary'
     };
 
-    const system = `You are Dr. Scholar, an expert academic mentor specializing in PhD scholarship applications, 
-particularly for students from Agricultural & Biosystem Engineering with research experience in Renewable Energy and AI. 
-The applicant has an MSc in Agricultural and Biosystem Engineering and a BSc in Electrical and Electronic Engineering.
-They are targeting PhD scholarships in Europe, USA, and UK.
-You provide highly specific, actionable, encouraging feedback tailored to engineering and interdisciplinary research fields.
+    const p = typeof AppState !== 'undefined' ? AppState.getProfile() : {};
+    const system = `You are Dr. Scholar, an expert academic mentor specializing in university applications and scholarships. 
+The applicant is named ${p.name || 'a student'}. They have a ${p.currentDegree || 'degree'} in ${p.field || 'a related field'} ${p.research ? `with research interests in ${p.research}` : ''}.
+They are targeting a ${p.targetDegree || 'degree'} in ${p.targetRegions || 'universities globally'}. ${p.scholarships ? `They are interested in scholarships like ${p.scholarships}.` : ''}
+You provide highly specific, actionable, encouraging feedback tailored to their specific field and goals.
 Always respond in valid JSON format.`;
 
-    const prompt = `Review the following ${docDescriptions[docType] || docType} for a PhD scholarship application.
+    const fieldSpecifics = p.field ? `Be specific to ${p.field}, ${p.research || ''}, and their target regions (${p.targetRegions || 'globally'}).` : '';
+    
+    const prompt = `Review the following ${docDescriptions[docType] || docType} for a ${p.targetDegree || 'university'} scholarship application.
 
 DOCUMENT CONTENT:
 ---
@@ -96,7 +98,7 @@ Provide a detailed review in the following JSON format:
   "quick_wins": ["<one-line quick fix>", ...]
 }
 
-Be specific to Renewable Energy, AI, Agricultural Engineering, and the target regions (Europe, USA, UK).`;
+${fieldSpecifics}`;
 
     const raw = await generate(prompt, system);
     // Extract JSON from response
@@ -107,16 +109,17 @@ Be specific to Renewable Energy, AI, Agricultural Engineering, and the target re
 
   // ── AI Mentor Chat ─────────────────────────────────────────
   async function chat(userMessage, history = []) {
-    const system = `You are Dr. Scholar, a warm, encouraging, and highly knowledgeable AI mentor for PhD scholarship applications.
+    const p = typeof AppState !== 'undefined' ? AppState.getProfile() : {};
+    const system = `You are Dr. Scholar, a warm, encouraging, and highly knowledgeable AI mentor for scholarship applications.
 The student: 
-- Has an MSc in Agricultural & Biosystem Engineering (specializing in Renewable Energy and AI)
-- Has a BSc in Electrical & Electronic Engineering
-- Is looking for PhD scholarships in Europe, USA, and UK
-- Is currently an MSc student finishing their program
+- Name: ${p.name || 'Student'}
+- Current Education: ${p.currentDegree || 'Student'} in ${p.field || 'their field'}
+- Research Interests: ${p.research || 'N/A'}
+- Targeting: ${p.targetDegree || 'degree'} scholarships in ${p.targetRegions || 'universities globally'}
+- Specific Scholarships: ${p.scholarships || 'N/A'}
 
-Your role: Guide them through every step of finding, applying for, and securing a PhD scholarship.
-Topics you excel at: finding supervisors, writing SOPs, CV optimization, scholarship strategies, interview prep, 
-research proposal writing, networking, DAAD, Fulbright, Chevening, Marie Curie, Gates Cambridge, EPSRC, Erasmus Mundus scholarships.
+Your role: Guide them through every step of finding, applying for, and securing a scholarship.
+Topics you excel at: finding supervisors, writing SOPs, CV optimization, scholarship strategies, interview prep, research proposal writing, networking.
 
 Be conversational, supportive, and specific. Use emojis sparingly for warmth. Keep responses concise but thorough.
 Format key points with markdown bullet points or numbered lists when helpful.`;

@@ -181,14 +181,7 @@ const AppState = (() => {
   function saveChatHistory(data) { save(KEYS.chat, data); }
 
   function getProfile() {
-    return load(KEYS.profile) || {
-      name: 'Engr. Jose',
-      degree: 'MSc Agricultural & Biosystem Engineering',
-      field: 'Renewable Energy & AI',
-      bsc: 'BSc Electrical & Electronic Engineering',
-      targetRegions: 'Europe, USA, UK',
-      email: ''
-    };
+    return load(KEYS.profile);
   }
   function saveProfile(data) { save(KEYS.profile, data); }
 
@@ -252,6 +245,34 @@ const Router = (() => {
   return { navigate, getCurrent: () => current };
 })();
 
+// ── App Global Helpers ───────────────────────────────────────
+const App = {
+  checkOnboarding: function() {
+    if (!AppState.getProfile()) {
+      document.getElementById('onboarding-modal').style.display = 'flex';
+    }
+  },
+  saveOnboarding: function() {
+    const profile = {
+      name: document.getElementById('ob-name').value,
+      currentDegree: document.getElementById('ob-current-degree').value,
+      targetDegree: document.getElementById('ob-target-degree').value,
+      field: document.getElementById('ob-field').value,
+      research: document.getElementById('ob-research').value,
+      targetRegions: document.getElementById('ob-destinations').value,
+      scholarships: document.getElementById('ob-scholarships').value,
+    };
+    AppState.saveProfile(profile);
+    document.getElementById('onboarding-modal').style.display = 'none';
+    
+    // Update sidebar name if possible
+    const nameEl = document.getElementById('sidebar-user-name');
+    if (nameEl) nameEl.textContent = profile.name;
+    
+    showToast('Profile saved! Your AI mentor is ready.', 'success');
+  }
+};
+
 // ── Sidebar Toggle (Mobile) ──────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.getElementById('sidebar-toggle');
@@ -274,9 +295,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load profile name into sidebar
   const profile = AppState.getProfile();
-  if (profile.name) {
+  if (profile && profile.name) {
     document.getElementById('sidebar-user-name').textContent = profile.name;
   }
+
+  // Check if first time user
+  App.checkOnboarding();
 
   Router.navigate('dashboard');
 });

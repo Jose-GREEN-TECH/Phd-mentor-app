@@ -3,36 +3,45 @@
    ============================================================ */
 
 const ChatView = (() => {
-  const CHIPS = [
-    'What makes a strong SOP for Renewable Energy PhD?',
-    'How do I find the right PhD supervisor?',
-    'Best scholarships for Agricultural Engineering in Europe?',
-    'How to write a cold email to a professor?',
-    'What GPA do I need for DAAD scholarship?',
-    'Difference between SOP and Motivation Letter?',
-    'How to tailor my CV for academic applications?',
-    'What questions do scholarship interviews ask?',
-    'How to write a strong research proposal?',
-    'Tips for Fulbright application as an engineer?',
-  ];
+  function getDynamicChips(p) {
+    const field = p?.field || 'your field';
+    const degree = p?.targetDegree || 'degree';
+    return [
+      `What makes a strong SOP for a ${field} ${degree}?`,
+      `How do I find the right ${degree} supervisor?`,
+      `Best scholarships for ${field}?`,
+      `How to write a cold email to a professor?`,
+      `What GPA do I need for ${p?.scholarships ? p.scholarships.split(',')[0] : 'top scholarships'}?`,
+      `Difference between SOP and Motivation Letter?`,
+      `How to tailor my CV for academic applications?`,
+      `What questions do scholarship interviews ask?`,
+      `How to write a strong research proposal?`,
+      `Tips for applying as an international student?`
+    ];
+  }
 
-  const WELCOME_MSG = {
-    role: 'model',
-    text: `👋 Hello! I'm **Dr. Scholar**, your personal PhD scholarship mentor.
+  function getWelcomeMsg() {
+    const p = typeof AppState !== 'undefined' ? AppState.getProfile() : null;
+    const nameStr = p?.name ? ` ${p.name.split(' ')[0]}` : '';
+    const fieldStr = p?.field ? ` in **${p.field}**` : '';
+    
+    return {
+      role: 'model',
+      text: `👋 Hello${nameStr}! I'm **Dr. Scholar**, your personal scholarship mentor.
 
-I know you're finishing your MSc in **Agricultural & Biosystem Engineering** with a focus on **Renewable Energy and AI**, and you have a BSc in **Electrical & Electronic Engineering**. You're targeting scholarships in **Europe, USA, and UK** — excellent choices!
-
-Your interdisciplinary background is a genuine strength. The intersection of Renewable Energy + AI + Agriculture is a hot research frontier, and many top universities are actively seeking PhD candidates with exactly this profile.
+I see you are targeting **${p?.targetDegree || 'university'}** scholarships${p?.targetRegions ? ` in **${p.targetRegions}**` : ''}. 
+Your background${fieldStr}${p?.research ? ` with a focus on ${p.research}` : ''} gives us a great foundation to build a strong application.
 
 Here's how I can help you:
-- 📄 Guide you through every application document
+- 📄 Guide you through every application document (SOP, CV, Proposals)
 - 🎓 Help you find the right supervisors and programs
-- 💡 Strategy for DAAD, Fulbright, Chevening, Marie Curie, and more
+- 💡 Strategy for your target scholarships${p?.scholarships ? ` like ${p.scholarships}` : ''}
 - 🎤 Interview preparation and practice
 
 **What would you like to work on today?** Use the suggestion chips below or ask me anything!`,
-    time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
-  };
+      time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
+    };
+  }
 
   let history = [];
 
@@ -143,7 +152,7 @@ Here's how I can help you:
     AppState.saveChatHistory([]);
     const container = document.getElementById('chat-messages');
     container.innerHTML = '';
-    appendMessage(WELCOME_MSG);
+    appendMessage(getWelcomeMsg());
     showToast('Chat history cleared', 'info');
   }
 
@@ -154,18 +163,20 @@ Here's how I can help you:
     const container = document.getElementById('chat-messages');
     if (!container) return;
 
+    const welcomeMsg = getWelcomeMsg();
     // Show welcome + history
     if (history.length === 0) {
-      appendMessage(WELCOME_MSG);
+      appendMessage(welcomeMsg);
     } else {
-      container.innerHTML = renderMessages([WELCOME_MSG, ...history]);
+      container.innerHTML = renderMessages([welcomeMsg, ...history]);
       scrollToBottom();
     }
 
     // Chips
     const chipsContainer = document.getElementById('chat-chips');
     if (chipsContainer) {
-      chipsContainer.innerHTML = CHIPS.map(chip =>
+      const p = typeof AppState !== 'undefined' ? AppState.getProfile() : null;
+      chipsContainer.innerHTML = getDynamicChips(p).map(chip =>
         `<div class="chat-chip" onclick="ChatView.sendMessage('${chip.replace(/'/g, "\\'")}')">${chip}</div>`
       ).join('');
     }

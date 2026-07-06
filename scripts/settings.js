@@ -16,34 +16,38 @@ const SettingsView = (() => {
             <div class="profile-avatar-big">🎓</div>
             <div>
               <div style="font-family:var(--font-heading);font-size:20px;font-weight:700">${profile.name || 'Set your name'}</div>
-              <div class="text-sm text-muted">${profile.degree}</div>
-              <div class="text-xs text-muted" style="margin-top:2px">Targeting: ${profile.targetRegions}</div>
+              <div class="text-sm text-muted">${profile.currentDegree || 'Update your profile'}</div>
+              <div class="text-xs text-muted" style="margin-top:2px">Targeting: ${profile.targetRegions || 'N/A'}</div>
             </div>
           </div>
-          <div class="grid-2">
+          <div class="grid-2" style="margin-bottom:16px;">
             <div class="form-group">
               <label class="form-label">Full Name</label>
-              <input class="form-input" id="profile-name" type="text" value="${profile.name || ''}" placeholder="Your full name">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Email Address</label>
-              <input class="form-input" id="profile-email" type="email" value="${profile.email || ''}" placeholder="your@email.com">
+              <input class="form-input" id="profile-name" type="text" value="${profile?.name || ''}">
             </div>
             <div class="form-group">
               <label class="form-label">Current Degree</label>
-              <input class="form-input" id="profile-degree" type="text" value="${profile.degree || ''}" placeholder="MSc Agricultural & Biosystem Engineering">
+              <input class="form-input" id="profile-current-degree" type="text" value="${profile?.currentDegree || ''}">
             </div>
             <div class="form-group">
-              <label class="form-label">BSc Degree</label>
-              <input class="form-input" id="profile-bsc" type="text" value="${profile.bsc || ''}" placeholder="BSc Electrical & Electronic Engineering">
+              <label class="form-label">Target Degree</label>
+              <input class="form-input" id="profile-target-degree" type="text" value="${profile?.targetDegree || ''}">
             </div>
             <div class="form-group">
-              <label class="form-label">Research Field / Specialization</label>
-              <input class="form-input" id="profile-field" type="text" value="${profile.field || ''}" placeholder="Renewable Energy & AI">
+              <label class="form-label">Field of Study</label>
+              <input class="form-input" id="profile-field" type="text" value="${profile?.field || ''}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Research Interests</label>
+              <input class="form-input" id="profile-research" type="text" value="${profile?.research || ''}">
             </div>
             <div class="form-group">
               <label class="form-label">Target Regions</label>
-              <input class="form-input" id="profile-regions" type="text" value="${profile.targetRegions || ''}" placeholder="Europe, USA, UK">
+              <input class="form-input" id="profile-regions" type="text" value="${profile?.targetRegions || ''}">
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1">
+              <label class="form-label">Target Scholarships</label>
+              <input class="form-input" id="profile-scholarships" type="text" value="${profile?.scholarships || ''}">
             </div>
           </div>
           <button class="btn btn-primary" onclick="SettingsView.saveProfile()">💾 Save Profile</button>
@@ -100,106 +104,18 @@ const SettingsView = (() => {
   function saveProfile() {
     const profile = {
       name:          document.getElementById('profile-name').value.trim(),
-      email:         document.getElementById('profile-email').value.trim(),
-      degree:        document.getElementById('profile-degree').value.trim(),
-      bsc:           document.getElementById('profile-bsc').value.trim(),
+      currentDegree: document.getElementById('profile-current-degree').value.trim(),
+      targetDegree:  document.getElementById('profile-target-degree').value.trim(),
       field:         document.getElementById('profile-field').value.trim(),
+      research:      document.getElementById('profile-research').value.trim(),
       targetRegions: document.getElementById('profile-regions').value.trim(),
+      scholarships:  document.getElementById('profile-scholarships').value.trim(),
     };
     AppState.saveProfile(profile);
     // Update sidebar name
     const nameEl = document.getElementById('sidebar-user-name');
     if (nameEl && profile.name) nameEl.textContent = profile.name;
     showToast('Profile saved! ✅', 'success');
-  }
-
-  function saveApiKey() {
-    const key = document.getElementById('api-key-input').value.trim();
-    if (!key) { showToast('Please enter an API key', 'error'); return; }
-    localStorage.setItem('mentorapp_api_key', key);
-    showToast('API key saved! 🔑', 'success');
-    render();
-  }
-
-  function clearApiKey() {
-    if (!confirm('Remove the API key? AI features will be disabled.')) return;
-    localStorage.removeItem('mentorapp_api_key');
-    showToast('API key removed', 'info');
-    render();
-  }
-
-  async function testApiKey() {
-    const key = document.getElementById('api-key-input').value.trim();
-    if (!key) { showToast('Enter your API key first', 'error'); return; }
-    localStorage.setItem('mentorapp_api_key', key);
-
-    showToast('Testing connection...', 'info');
-    try {
-      const result = await GeminiAPI.generate('Say "Hello, PhD Scholar! Connection successful!" in exactly those words.');
-      if (result.includes('Hello')) {
-        showToast(`✅ Connected! Using ${GeminiAPI.getModel()}. AI features are ready.`, 'success', 4000);
-        render();
-      } else {
-        showToast('API responded. Key is working!', 'success');
-      }
-    } catch (err) {
-      if (err.message === 'QUOTA_EXCEEDED') {
-        showToast('❌ Quota exceeded! Switch to "Gemini 1.5 Flash" in the model dropdown above and try again.', 'error', 6000);
-      } else {
-        showToast(`Connection failed: ${err.message}`, 'error', 5000);
-      }
-    }
-  }
-
-  function changeModel(modelId) {
-    GeminiAPI.setModel(modelId);
-    showToast(`Model switched to ${modelId} ✅`, 'success');
-    // Re-render to update status line
-    render();
-  }
-
-  async function loadModelsFromApi() {
-    const btn = document.getElementById('fetch-models-btn');
-    if (btn) btn.innerHTML = '<div class="spinner"></div> Fetching...';
-    try {
-      const models = await GeminiAPI.fetchModels();
-      if (models.length === 0) {
-        showToast('No chat models found for this API key.', 'warning');
-        return;
-      }
-      
-      const select = document.getElementById('model-select');
-      const current = GeminiAPI.getModel();
-      const hasCurrent = models.some(m => m.id === current);
-      const targetModel = hasCurrent ? current : models[0].id;
-      
-      select.innerHTML = models.map(m =>
-        `<option value="${m.id}" ${targetModel === m.id ? 'selected' : ''}>${m.label} (${m.id})</option>`
-      ).join('');
-      
-      if (!hasCurrent) {
-        GeminiAPI.setModel(targetModel);
-        showToast(`Auto-switched to supported model: ${targetModel}`, 'info');
-      } else {
-        showToast('Available models loaded successfully!', 'success');
-      }
-      
-      // Update global available models if needed (optional)
-      GeminiAPI.AVAILABLE_MODELS.length = 0;
-      models.forEach(m => GeminiAPI.AVAILABLE_MODELS.push(m));
-      
-      // Re-render the bottom status string manually to avoid resetting the whole view
-      const statusEl = document.querySelector('.card > div:last-child');
-      if (statusEl) {
-        statusEl.innerHTML = `
-          <span style="color:var(--green)">✅</span>
-          <span class="text-sm text-muted">API key configured · Model: <strong style="color:var(--violet-light)">${targetModel}</strong></span>`;
-      }
-    } catch (err) {
-      showToast(err.message === 'NO_KEY' ? 'Please enter an API key first' : `Failed to load models: ${err.message}`, 'error');
-    } finally {
-      if (btn) btn.innerHTML = '🔄 Fetch Available Models';
-    }
   }
 
   function toggleApiKeyVisibility() {
@@ -236,5 +152,5 @@ const SettingsView = (() => {
 
   function init() {}
 
-  return { init, render, saveProfile, saveApiKey, clearApiKey, testApiKey, toggleApiKeyVisibility, exportData, resetAllData, changeModel, loadModelsFromApi };
+  return { init, render, saveProfile, exportData, resetAllData, toggleApiKeyVisibility };
 })();
