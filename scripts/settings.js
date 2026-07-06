@@ -50,62 +50,7 @@ const SettingsView = (() => {
         </div>
       </div>
 
-      <!-- API Key Section -->
-      <div class="settings-section">
-        <div class="settings-section-title">🔑 Gemini API Key &amp; Model</div>
-        <div class="card">
 
-          <!-- Quota troubleshooting box -->
-          <div style="margin-bottom:16px;padding:16px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.35);border-radius:var(--radius-md)">
-            <div style="font-size:13px;font-weight:700;color:var(--gold-light);margin-bottom:8px">⚠️ Getting a quota error? Follow these steps:</div>
-            <ol style="font-size:12px;color:var(--text-secondary);line-height:1.9;padding-left:18px;margin:0">
-              <li>Make sure you selected <strong style="color:var(--gold-light)">Gemini 1.5 Flash</strong> as your model (it has the most generous free tier)</li>
-              <li>Go to <a href="https://ai.dev/rate-limit" target="_blank" style="color:var(--cyan)">ai.dev/rate-limit</a> to check your current usage</li>
-              <li>If limits are 0, your project may need <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--cyan)">billing enabled</a> — or create a new project &amp; new API key</li>
-              <li>Free tier allows ~15 requests/min and 1M tokens/day on <strong style="color:var(--gold-light)">gemini-1.5-flash</strong></li>
-            </ol>
-          </div>
-
-          <!-- Model selector -->
-          <div class="form-group">
-            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px">
-              <label class="form-label" style="margin-bottom:0">AI Model <span style="color:var(--text-muted);font-weight:400">(select based on your quota)</span></label>
-              <button class="btn btn-sm btn-secondary" onclick="SettingsView.loadModelsFromApi()" id="fetch-models-btn">🔄 Fetch Available Models</button>
-            </div>
-            <select class="form-select" id="model-select" onchange="SettingsView.changeModel(this.value)">
-              ${GeminiAPI.AVAILABLE_MODELS.map(m =>
-                `<option value="${m.id}" ${GeminiAPI.getModel() === m.id ? 'selected' : ''}>${m.label}</option>`
-              ).join('')}
-            </select>
-            <div class="text-xs text-muted" style="margin-top:6px">✅ If you see "Model not found", click <strong>Fetch Available Models</strong> to see what your key supports.</div>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="form-group">
-            <label class="form-label">API Key — get yours free at <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--cyan)">Google AI Studio</a></label>
-            <div class="api-key-input-wrap">
-              <input class="form-input" id="api-key-input" type="password"
-                     value="${apiKey}" placeholder="AIza...">
-              <button class="api-key-toggle" onclick="SettingsView.toggleApiKeyVisibility()" id="api-key-toggle-btn">👁️</button>
-            </div>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-primary" onclick="SettingsView.saveApiKey()">🔑 Save API Key</button>
-            <button class="btn btn-secondary" onclick="SettingsView.testApiKey()">🧪 Test Connection</button>
-            ${apiKey ? `<button class="btn btn-danger" onclick="SettingsView.clearApiKey()">🗑️ Clear Key</button>` : ''}
-          </div>
-          ${apiKey ? `
-            <div style="margin-top:12px;display:flex;align-items:center;gap:8px">
-              <span style="color:var(--green)">✅</span>
-              <span class="text-sm text-muted">API key configured · Model: <strong style="color:var(--violet-light)">${GeminiAPI.getModel()}</strong></span>
-            </div>` : `
-            <div style="margin-top:12px;display:flex;align-items:center;gap:8px">
-              <span style="color:var(--gold)">⚠️</span>
-              <span class="text-sm text-muted">No API key. Document review and chat features require a key.</span>
-            </div>`}
-        </div>
-      </div>
 
       <!-- Scholarship Data -->
       <div class="settings-section">

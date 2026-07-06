@@ -3,7 +3,6 @@
    ============================================================ */
 
 const GeminiAPI = (() => {
-  const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
   // Model is configurable — gemini-1.5-flash has the most generous free tier
   const AVAILABLE_MODELS = [
@@ -18,28 +17,11 @@ const GeminiAPI = (() => {
   }
   function setModel(m) { localStorage.setItem('mentorapp_model', m); }
 
-  function getKey() {
-    return localStorage.getItem('mentorapp_api_key') || '';
-  }
-
   async function fetchModels() {
-    const key = getKey();
-    if (!key) throw new Error('NO_KEY');
-    
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
-    if (!res.ok) {
-      throw new Error('Failed to fetch models');
-    }
-    const data = await res.json();
-    return data.models
-      .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
-      .map(m => ({ id: m.name.replace('models/', ''), label: m.displayName || m.name }));
+    return AVAILABLE_MODELS;
   }
 
   async function generate(prompt, systemInstruction = '') {
-    const key = getKey();
-    if (!key) throw new Error('NO_KEY');
-
     const model = getModel();
     const body = {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -49,19 +31,15 @@ const GeminiAPI = (() => {
       body.systemInstruction = { parts: [{ text: systemInstruction }] };
     }
 
-    const res = await fetch(`${BASE_URL}/${model}:generateContent?key=${key}`, {
+    const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify({ model, body })
     });
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      const msg = err.error?.message || `HTTP ${res.status}`;
-      // Surface friendly quota message
-      if (msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED') || res.status === 429) {
-        throw new Error('QUOTA_EXCEEDED');
-      }
+      const msg = err.error || err.error?.message || `HTTP ${res.status}`;
       throw new Error(msg);
     }
     const data = await res.json();
@@ -142,32 +120,26 @@ Format key points with markdown bullet points or numbered lists when helpful.`;
     const contents = history.map(h => ({ role: h.role, parts: [{ text: h.text }] }));
     contents.push({ role: 'user', parts: [{ text: userMessage }] });
 
-    const key = getKey();
-    if (!key) throw new Error('NO_KEY');
-
     const body = {
       contents,
       systemInstruction: { parts: [{ text: system }] },
       generationConfig: { temperature: 0.8, maxOutputTokens: 1024 }
     };
 
-    const res = await fetch(`${BASE_URL}/${getModel()}:generateContent?key=${key}`, {
+    const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify({ model: getModel(), body })
     });
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      const msg = err.error?.message || `HTTP ${res.status}`;
-      if (msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED') || res.status === 429) {
-        throw new Error('QUOTA_EXCEEDED');
-      }
+      const msg = err.error || err.error?.message || `HTTP ${res.status}`;
       throw new Error(msg);
     }
     const data = await res.json();
     return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
   }
 
-  return { generate, reviewDocument, chat, getKey, getModel, setModel, AVAILABLE_MODELS, fetchModels };
+  return { generate, reviewDocument, chat, getModel, setModel, AVAILABLE_MODELS, fetchModels };
 })();
