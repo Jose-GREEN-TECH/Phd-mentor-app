@@ -216,10 +216,10 @@ const DashboardView = (() => {
               </div>
             </button>
             <button class="btn btn-secondary w-full" style="justify-content:flex-start;gap:14px" onclick="Router.navigate('settings')">
-              <span style="font-size:22px">🔑</span>
+              <span style="font-size:22px">⚙️</span>
               <div style="text-align:left">
-                <div class="font-bold" style="font-size:13px">Configure Gemini API</div>
-                <div class="text-xs text-muted">Add your API key to unlock AI features</div>
+                <div class="font-bold" style="font-size:13px">Update Your Profile</div>
+                <div class="text-xs text-muted">Customize your AI mentor's context</div>
               </div>
             </button>
           </div>
