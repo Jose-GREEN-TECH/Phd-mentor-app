@@ -12,8 +12,10 @@ const GeminiAPI = (() => {
     { id: 'gemini-2.5-flash-preview-05-20', label: 'Gemini 2.5 Flash Preview' },
   ];
 
+  // Hardcode model to the most stable, generous free-tier model 
+  // since the API key is now shared on the backend
   function getModel() {
-    return localStorage.getItem('mentorapp_model') || 'gemini-1.5-flash';
+    return 'gemini-1.5-flash';
   }
   function setModel(m) { localStorage.setItem('mentorapp_model', m); }
 
