@@ -15,7 +15,7 @@ const GeminiAPI = (() => {
   // Hardcode model to the most stable, generous free-tier model 
   // since the API key is now shared on the backend
   function getModel() {
-    return 'gemini-1.5-flash';
+    return 'gemini-2.5-flash';
   }
   function setModel(m) { localStorage.setItem('mentorapp_model', m); }
 
