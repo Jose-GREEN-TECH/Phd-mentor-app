@@ -39,7 +39,9 @@ const GeminiAPI = (() => {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      const msg = err.error || err.error?.message || `HTTP ${res.status}`;
+      let msg = `HTTP ${res.status}`;
+      if (err.error?.message) msg = err.error.message;
+      else if (typeof err.error === 'string') msg = err.error;
       throw new Error(msg);
     }
     const data = await res.json();
@@ -134,7 +136,9 @@ Format key points with markdown bullet points or numbered lists when helpful.`;
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      const msg = err.error || err.error?.message || `HTTP ${res.status}`;
+      let msg = `HTTP ${res.status}`;
+      if (err.error?.message) msg = err.error.message;
+      else if (typeof err.error === 'string') msg = err.error;
       throw new Error(msg);
     }
     const data = await res.json();
