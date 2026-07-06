@@ -120,7 +120,7 @@ const CalendarView = (() => {
                   </div>
                   <div style="text-align:right">
                     <span class="badge ${urgent ? 'badge-red' : soon ? 'badge-gold' : 'badge-gray'}">${s.daysLeft}d</span>
-                    <div class="text-xs text-muted" style="margin-top:4px">${urgent ? '🔥 Urgent!' : soon ? '⚡ Soon' : '📅 Upcoming'}</div>
+                    <button class="btn btn-secondary btn-sm" style="margin-top:4px;padding:2px 8px;font-size:11px" onclick="App.addToCalendar('${s.name.replace(/'/g, "\\'")}', '${s.deadline}', '${(s.url||'').replace(/'/g, "\\'")}')" title="Add Reminder to Calendar">📅 Sync</button>
                   </div>
                 </div>`;
             }).join('')
@@ -164,7 +164,10 @@ const CalendarView = (() => {
               <span class="badge ${s.status === 'accepted' ? 'badge-green' : s.status === 'rejected' ? 'badge-red' : 'badge-gray'}">${s.status}</span>
             </div>
             ${s.notes ? `<div style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.5">${s.notes}</div>` : ''}
-            ${s.url ? `<a href="${s.url}" target="_blank" class="btn btn-sm btn-secondary" style="margin-top:10px">🔗 Open Portal</a>` : ''}
+            <div style="display:flex;gap:8px;margin-top:10px">
+              ${s.url ? `<a href="${s.url}" target="_blank" class="btn btn-sm btn-secondary">🔗 Open Portal</a>` : ''}
+              <button class="btn btn-sm btn-secondary" onclick="App.addToCalendar('${s.name.replace(/'/g, "\\'")}', '${s.deadline}', '${(s.url||'').replace(/'/g, "\\'")}')">📅 Sync to Calendar</button>
+            </div>
           </div>`).join('');
 
     openModal('day-modal');

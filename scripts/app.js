@@ -270,6 +270,52 @@ const App = {
     if (nameEl) nameEl.textContent = profile.name;
     
     showToast('Profile saved! Your AI mentor is ready.', 'success');
+  },
+  addToCalendar: function(title, dateStr, url = '') {
+    if (!dateStr) { showToast('No deadline set', 'error'); return; }
+    
+    // Create start and end date (Make it an all-day event or 9AM-10AM)
+    const date = new Date(dateStr);
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const dtstart = `${year}${month}${day}T090000Z`;
+    const dtend = `${year}${month}${day}T100000Z`;
+
+    // Construct ICS content with reminders (1 day and 3 days before)
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//PhD Scholar Mentor//EN',
+      'BEGIN:VEVENT',
+      `DTSTART:${dtstart}`,
+      `DTEND:${dtend}`,
+      `SUMMARY:Deadline: ${title}`,
+      `DESCRIPTION:Scholarship Application Deadline.\\n${url}`,
+      'BEGIN:VALARM',
+      'TRIGGER:-P3D',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:Reminder: 3 Days until deadline',
+      'END:VALARM',
+      'BEGIN:VALARM',
+      'TRIGGER:-P1D',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:Reminder: 1 Day until deadline',
+      'END:VALARM',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\\r\\n');
+
+    // Create a Blob and trigger download
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `deadline-${title.replace(/\\s+/g, '-').toLowerCase()}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast('Calendar event downloaded! Add it to your calendar app.', 'success', 5000);
   }
 };
 

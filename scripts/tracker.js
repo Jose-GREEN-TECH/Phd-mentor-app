@@ -91,6 +91,7 @@ const TrackerView = (() => {
                   <div class="tracker-actions">
                     <button class="btn btn-sm btn-secondary btn-icon" onclick="TrackerView.openEditModal('${s.id}')" title="Edit">✏️</button>
                     ${s.url ? `<a href="${s.url}" target="_blank" class="btn btn-sm btn-secondary btn-icon" title="Visit">🔗</a>` : ''}
+                    ${s.deadline ? `<button class="btn btn-sm btn-secondary btn-icon" onclick="App.addToCalendar('${s.name.replace(/'/g, "\\'")}', '${s.deadline}', '${(s.url||'').replace(/'/g, "\\'")}')" title="Add Reminder to Calendar">📅</button>` : ''}
                     <button class="btn btn-sm btn-danger btn-icon" onclick="TrackerView.deleteScholarship('${s.id}')" title="Delete">🗑️</button>
                   </div>
                 </td>
