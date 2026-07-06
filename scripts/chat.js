@@ -103,10 +103,6 @@ Here's how I can help you:
 
   async function sendMessage(text) {
     if (!text?.trim()) return;
-    if (!GeminiAPI.getKey()) {
-      showToast('Please add your Gemini API key in Settings to chat with Dr. Scholar', 'warning');
-      return;
-    }
 
     const userMsg = { role: 'user', text: text.trim(), time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) };
     appendMessage(userMsg);
@@ -134,9 +130,7 @@ Here's how I can help you:
 
     } catch (err) {
       hideTyping();
-      const errMsg = err.message === 'NO_KEY'
-        ? 'Please add your Gemini API key in Settings'
-        : err.message === 'QUOTA_EXCEEDED'
+      const errMsg = err.message === 'QUOTA_EXCEEDED'
         ? '⚠️ Quota exceeded. Go to ⚙️ Settings and switch the model to **Gemini 1.5 Flash**, then try again.'
         : `Error: ${err.message}`;
       appendMessage({ role: 'model', text: `⚠️ ${errMsg}`, time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) });

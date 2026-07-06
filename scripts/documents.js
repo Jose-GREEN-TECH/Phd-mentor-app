@@ -213,10 +213,6 @@ const DocumentsView = (() => {
     if (!text || text.length < 50) {
       showToast('Please paste your document text (at least 50 characters)', 'error'); return;
     }
-    if (!GeminiAPI.getKey()) {
-      showToast('Please add your Gemini API key in Settings first', 'warning');
-      Router.navigate('settings'); return;
-    }
 
     const btn = document.getElementById(`analyze-btn-${docId}`);
     btn.disabled = true;
@@ -248,9 +244,7 @@ const DocumentsView = (() => {
 
       showToast('Document analyzed successfully! 🎉', 'success');
     } catch (err) {
-      const msg = err.message === 'NO_KEY'
-        ? 'API key missing — go to Settings'
-        : err.message === 'QUOTA_EXCEEDED'
+      const msg = err.message === 'QUOTA_EXCEEDED'
         ? '⚠️ Quota exceeded! Go to ⚙️ Settings → switch model to "Gemini 1.5 Flash" → try again'
         : `Analysis failed: ${err.message}`;
       showToast(msg, 'error', 6000);
