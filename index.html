@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhD Scholar Mentor — Your AI-Powered Scholarship Guide</title>
+  <meta name="description" content="AI-powered mentorship app for PhD scholarship applications. Review your CV, SOP, motivation letter, and track scholarship deadlines for Europe, USA, and UK.">
+  <meta name="keywords" content="PhD scholarship, mentorship, DAAD, Fulbright, Chevening, academic CV, SOP, statement of purpose">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+<!-- ── Mobile Sidebar Toggle ────────────────────────────── -->
+<button id="sidebar-toggle" aria-label="Toggle menu">☰</button>
+
+<!-- ════════════════════════════════════════════════════════
+     SIDEBAR
+     ════════════════════════════════════════════════════════ -->
+<aside id="sidebar" role="navigation" aria-label="Main navigation">
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <div class="logo-icon">🎓</div>
+    <h1>PhD Scholar<br>Mentor</h1>
+    <span>Your AI Application Guide</span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" data-view="dashboard" id="nav-dashboard" role="button" tabindex="0">
+      <span class="nav-icon">🏠</span> Dashboard
+    </div>
+
+    <div class="nav-label">Application</div>
+    <div class="nav-item" data-view="documents" id="nav-documents" role="button" tabindex="0">
+      <span class="nav-icon">📄</span> Document Review
+    </div>
+    <div class="nav-item" data-view="tracker" id="nav-tracker" role="button" tabindex="0">
+      <span class="nav-icon">🎯</span> Scholarship Tracker
+    </div>
+    <div class="nav-item" data-view="checklist" id="nav-checklist" role="button" tabindex="0">
+      <span class="nav-icon">✅</span> Roadmap
+    </div>
+
+    <div class="nav-label">Tools</div>
+    <div class="nav-item" data-view="chat" id="nav-chat" role="button" tabindex="0">
+      <span class="nav-icon">💬</span> AI Mentor Chat
+    </div>
+    <div class="nav-item" data-view="calendar" id="nav-calendar" role="button" tabindex="0">
+      <span class="nav-icon">📅</span> Deadline Calendar
+    </div>
+
+    <div class="nav-label">Account</div>
+    <div class="nav-item" data-view="settings" id="nav-settings" role="button" tabindex="0">
+      <span class="nav-icon">⚙️</span> Settings
+    </div>
+  </nav>
+
+  <!-- User Card -->
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">🧑‍🎓</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebar-user-name">Engr. Jose</div>
+        <div class="user-role">MSc → PhD Candidate</div>
+      </div>
+    </div>
+    <div style="text-align:center; font-size:10px; color:var(--text-muted); margin-top:16px; letter-spacing:0.05em; text-transform:uppercase;">
+      Designed by Engr. Jose
+    </div>
+  </div>
+</aside>
+
+<!-- ════════════════════════════════════════════════════════
+     MAIN CONTENT
+     ════════════════════════════════════════════════════════ -->
+<main id="main">
+
+  <!-- ── DASHBOARD VIEW ─────────────────────────────────── -->
+  <section id="view-dashboard" class="view active" role="main">
+    <div class="view-header">
+      <h2>Dashboard</h2>
+      <p>Welcome to your PhD scholarship command center</p>
+    </div>
+    <div class="view-body">
+      <div id="dashboard-content"></div>
+    </div>
+  </section>
+
+  <!-- ── DOCUMENT REVIEW VIEW ───────────────────────────── -->
+  <section id="view-documents" class="view" role="main">
+    <div class="view-header">
+      <h2>Document Review Center</h2>
+      <p>Get AI-powered feedback on your CV, SOP, Motivation Letter, and more</p>
+    </div>
+    <div class="view-body">
+      <!-- Doc Type Selector -->
+      <div class="mb-4">
+        <div class="card-title" style="margin-bottom:14px"><span class="icon">📂</span> Select a Document to Review</div>
+        <div class="doc-type-grid" id="docs-grid"></div>
+      </div>
+      <!-- Review Panels (injected when doc is selected) -->
+      <div id="doc-review-panels">
+        <div class="empty-state">
+          <div class="empty-state-icon">👆</div>
+          <div class="empty-state-title">Select a document type above</div>
+          <div class="empty-state-desc">Click any document type to start the review process</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SCHOLARSHIP TRACKER VIEW ───────────────────────── -->
+  <section id="view-tracker" class="view" role="main">
+    <div class="view-header">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2>Scholarship Tracker</h2>
+          <p>Manage all your PhD scholarship opportunities in one place</p>
+        </div>
+        <button class="btn btn-primary" onclick="TrackerView.openAddModal()">➕ Add Scholarship</button>
+      </div>
+    </div>
+    <div class="view-body">
+      <!-- Stats -->
+      <div id="tracker-stats"></div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <input type="text" class="search-input" id="tracker-search" placeholder="🔍 Search scholarships...">
+        <select class="form-select" id="tracker-status-filter" style="width:auto;min-width:140px">
+          <option value="all">All Statuses</option>
+          <option value="researching">🔍 Researching</option>
+          <option value="drafting">✍️ Drafting</option>
+          <option value="submitted">📤 Submitted</option>
+          <option value="accepted">🏆 Accepted</option>
+          <option value="rejected">❌ Rejected</option>
+          <option value="waitlist">⏳ Waitlist</option>
+        </select>
+        <select class="form-select" id="tracker-region-filter" style="width:auto;min-width:140px">
+          <option value="all">All Regions</option>
+          <option value="Europe">🇪🇺 Europe</option>
+          <option value="USA">🇺🇸 USA</option>
+          <option value="UK">🇬🇧 UK</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div id="tracker-table-wrap"></div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="tracker-modal">
+      <div class="modal modal-lg">
+        <div class="modal-header">
+          <div class="modal-title" id="tracker-modal-title">Add Scholarship</div>
+          <button class="modal-close" onclick="closeModal('tracker-modal')">✕</button>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Scholarship Name *</label>
+            <input class="form-input" id="modal-name" type="text" placeholder="e.g. DAAD Research Grant">
+          </div>
+          <div class="form-group">
+            <label class="form-label">University / Organization</label>
+            <input class="form-input" id="modal-university" type="text" placeholder="e.g. Various German Universities">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Country (with flag emoji)</label>
+            <input class="form-input" id="modal-country" type="text" placeholder="🇩🇪 Germany">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Region</label>
+            <select class="form-select" id="modal-region">
+              <option value="Europe">Europe</option>
+              <option value="USA">USA</option>
+              <option value="UK">UK</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Funding Type</label>
+            <select class="form-select" id="modal-funding">
+              <option value="Full Funding">Full Funding</option>
+              <option value="Partial Funding">Partial Funding</option>
+              <option value="Tuition Only">Tuition Only</option>
+              <option value="Stipend Only">Stipend Only</option>
+              <option value="Travel Grant">Travel Grant</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Application Deadline</label>
+            <input class="form-input" id="modal-deadline" type="date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="modal-status">
+              <option value="researching">🔍 Researching</option>
+              <option value="drafting">✍️ Drafting</option>
+              <option value="submitted">📤 Submitted</option>
+              <option value="accepted">🏆 Accepted</option>
+              <option value="rejected">❌ Rejected</option>
+              <option value="waitlist">⏳ Waitlist</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Field Match % (your profile fit)</label>
+            <input class="form-input" id="modal-field-match" type="number" min="0" max="100" value="80">
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Portal / Website URL</label>
+            <input class="form-input" id="modal-url" type="url" placeholder="https://...">
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Requirements</label>
+            <input class="form-input" id="modal-requirements" type="text" placeholder="e.g. MSc degree, 2 references, IELTS 6.5">
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Notes</label>
+            <textarea class="form-textarea" id="modal-notes" style="min-height:80px" placeholder="Personal notes, contacts, application tips..."></textarea>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-4">
+          <button class="btn btn-primary flex-1" onclick="TrackerView.saveScholarship()">💾 Save Scholarship</button>
+          <button class="btn btn-secondary" onclick="closeModal('tracker-modal')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ROADMAP / CHECKLIST VIEW ───────────────────────── -->
+  <section id="view-checklist" class="view" role="main">
+    <div class="view-header">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2>Application Roadmap</h2>
+          <p>Your step-by-step guide through every phase of the PhD scholarship process</p>
+        </div>
+        <button class="btn btn-secondary" onclick="ChecklistView.resetAll()">🔄 Reset Progress</button>
+      </div>
+    </div>
+    <div class="view-body">
+      <div id="checklist-overall"></div>
+      <div id="checklist-phases"></div>
+    </div>
+  </section>
+
+  <!-- ── AI MENTOR CHAT VIEW ────────────────────────────── -->
+  <section id="view-chat" class="view" role="main">
+    <div class="view-header">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2>AI Mentor — Dr. Scholar</h2>
+          <p>Your personal AI guide for every question about PhD applications and scholarships</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="ChatView.clearHistory()">🗑️ Clear Chat</button>
+      </div>
+    </div>
+    <div class="view-body" style="padding-top:16px">
+      <div class="chat-layout">
+        <div class="chat-messages" id="chat-messages" aria-live="polite"></div>
+        <div class="chat-input-area">
+          <div class="chat-chips" id="chat-chips"></div>
+          <form class="chat-form" id="chat-form" onsubmit="return false">
+            <textarea class="chat-input" id="chat-input"
+                      placeholder="Ask Dr. Scholar anything about your PhD journey..."
+                      aria-label="Message input" rows="1"></textarea>
+            <button type="submit" class="btn btn-primary" style="height:48px;align-self:flex-end" id="chat-send-btn">
+              Send ➤
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CALENDAR VIEW ──────────────────────────────────── -->
+  <section id="view-calendar" class="view" role="main">
+    <div class="view-header">
+      <h2>Deadline Calendar</h2>
+      <p>Visualize all your scholarship deadlines on a monthly calendar</p>
+    </div>
+    <div class="view-body">
+      <div id="calendar-content"></div>
+    </div>
+  </section>
+
+  <!-- ── SETTINGS VIEW ──────────────────────────────────── -->
+  <section id="view-settings" class="view" role="main">
+    <div class="view-header">
+      <h2>Settings</h2>
+      <p>Manage your profile, API key, and application data</p>
+    </div>
+    <div class="view-body">
+      <div id="settings-content"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── Toast Container ────────────────────────────────────── -->
+<div id="toast-container" aria-live="polite"></div>
+
+<!-- ── Scripts ────────────────────────────────────────────── -->
+<script src="scripts/gemini.js"></script>
+<script src="scripts/app.js"></script>
+<script src="scripts/dashboard.js"></script>
+<script src="scripts/documents.js"></script>
+<script src="scripts/tracker.js"></script>
+<script src="scripts/checklist.js"></script>
+<script src="scripts/chat.js"></script>
+<script src="scripts/calendar.js"></script>
+<script src="scripts/settings.js"></script>
+
+</body>
+</html>
