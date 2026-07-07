@@ -23,12 +23,15 @@ const GeminiAPI = (() => {
     return AVAILABLE_MODELS;
   }
 
-  async function generate(prompt, systemInstruction = '') {
+  async function generate(prompt, systemInstruction = null, isJson = false) {
     const model = getModel();
     const body = {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
     };
+    if (isJson) {
+      body.generationConfig.responseMimeType = 'application/json';
+    }
     if (systemInstruction) {
       body.systemInstruction = { parts: [{ text: systemInstruction }] };
     }
@@ -47,7 +50,15 @@ const GeminiAPI = (() => {
       throw new Error(msg);
     }
     const data = await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    if (!text) {
+      if (data.promptFeedback?.blockReason || data.candidates?.[0]?.finishReason === 'SAFETY') {
+        throw new Error('Content blocked by AI safety filters');
+      }
+      throw new Error('Received empty response from AI');
+    }
+    return text;
   }
 
   // ── Document Review ────────────────────────────────────────
@@ -100,11 +111,18 @@ Provide a detailed review in the following JSON format:
 
 ${fieldSpecifics}`;
 
-    const raw = await generate(prompt, system);
-    // Extract JSON from response
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('Invalid AI response format');
-    return JSON.parse(jsonMatch[0]);
+    const raw = await generate(prompt, system, true);
+    
+    try {
+      // The model is now forced to return JSON, but it might still have markdown wrappers
+      const cleanJson = raw.replace(/^```(json)?\s*/gi, '').replace(/```\s*$/gi, '').trim();
+      return JSON.parse(cleanJson);
+    } catch (e) {
+      // Fallback regex matching if parsing fails
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error(`Invalid AI response format: ${raw.substring(0, 50)}...`);
+      return JSON.parse(jsonMatch[0]);
+    }
   }
 
   // ── AI Mentor Chat ─────────────────────────────────────────
