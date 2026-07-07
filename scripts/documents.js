@@ -281,16 +281,34 @@ const DocumentsView = (() => {
           .then(result => {
             document.getElementById(`doc-text-${docId}`).value = result.value;
             showToast(`DOCX loaded: ${file.name}`, 'success');
-            if (result.messages.length > 0) console.warn('Mammoth messages:', result.messages);
           })
-          .catch(err => {
-            showToast(`Failed to read DOCX: ${err.message}`, 'error');
-          });
+          .catch(err => showToast(`Failed to read DOCX: ${err.message}`, 'error'));
       };
       reader.readAsArrayBuffer(file);
     } else if (file.name.endsWith('.pdf')) {
-      showToast('⚠️ PDF upload is not supported yet. Please open the PDF and copy-paste the text.', 'error', 6000);
-      document.getElementById(`doc-text-${docId}`).value = '';
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const typedarray = new Uint8Array(e.target.result);
+            const pdf = await pdfjsLib.getDocument(typedarray).promise;
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+              const page = await pdf.getPage(i);
+              const textContent = await page.getTextContent();
+              fullText += textContent.items.map(item => item.str).join(' ') + '\\n\\n';
+            }
+            document.getElementById(`doc-text-${docId}`).value = fullText.trim();
+            showToast(`PDF loaded: ${file.name}`, 'success');
+          } catch (err) {
+            showToast(`Failed to read PDF: ${err.message}`, 'error');
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        showToast('PDF library failed to load. Please copy-paste instead.', 'error');
+      }
     } else {
       const reader = new FileReader();
       reader.onload = (e) => {
