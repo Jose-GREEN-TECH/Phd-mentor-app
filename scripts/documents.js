@@ -81,7 +81,7 @@ const DocumentsView = (() => {
             <span style="font-family:var(--font-heading);font-size:28px;font-weight:800;color:${getScoreColor(review.score)}">${review.grade}</span>
             <span class="badge ${review.score >= 85 ? 'badge-green' : review.score >= 70 ? 'badge-gold' : 'badge-red'}">${review.score >= 85 ? 'Excellent' : review.score >= 70 ? 'Good' : 'Needs Work'}</span>
           </div>
-          <p style="font-size:13px;color:var(--text-secondary);line-height:1.6">${review.summary}</p>
+          <p style="font-size:13px;color:white;line-height:1.6">${review.summary}</p>
           <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px">
             ${(review.keywords_missing || []).map(k => `<span class="tag">+${k}</span>`).join('')}
           </div>
@@ -124,7 +124,7 @@ const DocumentsView = (() => {
           ${(review.quick_wins||[]).map((w,i) => `
             <div class="feedback-item" style="border-left-color:var(--cyan)">
               <span class="feedback-item-icon" style="color:var(--cyan)">${i+1}.</span>
-              <div>${w}</div>
+              <div style="color:white;line-height:1.5">${w}</div>
             </div>`).join('')}
         </div>
       </div>
