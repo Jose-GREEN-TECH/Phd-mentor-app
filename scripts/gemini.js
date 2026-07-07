@@ -27,7 +27,7 @@ const GeminiAPI = (() => {
     const model = getModel();
     const body = {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+      generationConfig: { temperature: 0.7, maxOutputTokens: 8192 }
     };
     if (isJson) {
       body.generationConfig.responseMimeType = 'application/json';
@@ -94,19 +94,16 @@ Provide a detailed review in the following JSON format:
   "grade": "<A+/A/A-/B+/B/B-/C>",
   "summary": "<2-3 sentence overall assessment>",
   "strengths": [
-    {"point": "<specific strength>", "detail": "<why it works well>"},
-    ...3-4 items
+    {"point": "<specific strength>", "detail": "<why it works well>"}
   ],
   "weaknesses": [
-    {"point": "<specific weakness>", "detail": "<why it hurts and how to fix it>"},
-    ...3-4 items
+    {"point": "<specific weakness>", "detail": "<why it hurts and how to fix it>"}
   ],
   "suggestions": [
-    {"point": "<specific actionable suggestion>", "example": "<brief example or template if relevant>"},
-    ...4-5 items
+    {"point": "<specific actionable suggestion>", "example": "<brief example or template if relevant>"}
   ],
-  "keywords_missing": ["<keyword1>", "<keyword2>", ...],
-  "quick_wins": ["<one-line quick fix>", ...]
+  "keywords_missing": ["<keyword1>", "<keyword2>"],
+  "quick_wins": ["<one-line quick fix>"]
 }
 
 ${fieldSpecifics}`;
