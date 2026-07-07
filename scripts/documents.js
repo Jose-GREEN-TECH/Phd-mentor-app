@@ -273,18 +273,31 @@ const DocumentsView = (() => {
   }
 
   function processFile(file, docId) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target.result;
-      document.getElementById(`doc-text-${docId}`).value = text;
-      showToast(`File loaded: ${file.name}`, 'success');
-    };
-    if (file.name.endsWith('.txt')) {
-      reader.readAsText(file);
+    if (file.name.endsWith('.docx')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const arrayBuffer = e.target.result;
+        mammoth.extractRawText({ arrayBuffer: arrayBuffer })
+          .then(result => {
+            document.getElementById(`doc-text-${docId}`).value = result.value;
+            showToast(`DOCX loaded: ${file.name}`, 'success');
+            if (result.messages.length > 0) console.warn('Mammoth messages:', result.messages);
+          })
+          .catch(err => {
+            showToast(`Failed to read DOCX: ${err.message}`, 'error');
+          });
+      };
+      reader.readAsArrayBuffer(file);
+    } else if (file.name.endsWith('.pdf')) {
+      showToast('⚠️ PDF upload is not supported yet. Please open the PDF and copy-paste the text.', 'error', 6000);
+      document.getElementById(`doc-text-${docId}`).value = '';
     } else {
-      // For PDF/DOCX, note limitation
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById(`doc-text-${docId}`).value = e.target.result;
+        showToast(`Text file loaded: ${file.name}`, 'success');
+      };
       reader.readAsText(file);
-      showToast('Tip: For best results with PDF/DOCX, copy-paste the text directly', 'info');
     }
   }
 
