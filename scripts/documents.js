@@ -101,14 +101,14 @@ const DocumentsView = (() => {
           ${(review.strengths||[]).map(s => `
             <div class="feedback-item strength">
               <span class="feedback-item-icon">✅</span>
-              <div><strong>${s.point}</strong><br><span style="color:var(--text-muted)">${s.detail}</span></div>
+              <div><strong>${s.point}</strong><br><span style="color:var(--text-secondary);line-height:1.5;display:inline-block;margin-top:4px">${s.detail}</span></div>
             </div>`).join('')}
         </div>
         <div id="tab-weaknesses" class="hidden">
           ${(review.weaknesses||[]).map(s => `
             <div class="feedback-item weakness">
               <span class="feedback-item-icon">❌</span>
-              <div><strong>${s.point}</strong><br><span style="color:var(--text-muted)">${s.detail}</span></div>
+              <div><strong>${s.point}</strong><br><span style="color:var(--text-secondary);line-height:1.5;display:inline-block;margin-top:4px">${s.detail}</span></div>
             </div>`).join('')}
         </div>
         <div id="tab-suggestions" class="hidden">
@@ -116,7 +116,7 @@ const DocumentsView = (() => {
             <div class="feedback-item suggestion">
               <span class="feedback-item-icon">💡</span>
               <div><strong>${s.point}</strong>
-              ${s.example ? `<br><span style="color:var(--text-muted);font-style:italic">${s.example}</span>` : ''}
+              ${s.example ? `<br><span style="color:var(--text-secondary);font-style:italic;line-height:1.5;display:inline-block;margin-top:4px">${s.example}</span>` : ''}
               </div>
             </div>`).join('')}
         </div>
